@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weed Detection - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2E7D32;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-box h3 {
+            font-size: 36px;
+            margin-bottom: 5px;
+        }
+
+        .stat-box p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .weed-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .weed-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f5f5f5;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .weed-item:hover {
+            background: #e8f5e9;
+            transform: translateX(5px);
+        }
+
+        .weed-name {
+            font-weight: bold;
+            color: #2E7D32;
+            text-transform: capitalize;
+        }
+
+        .weed-count {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .btn-delete:hover {
+            background: #d32f2f;
+        }
+
+        .upload-section {
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 15px;
+            background: #f5f5f5;
+            border: 2px dashed #4CAF50;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #e8f5e9;
+            border-color: #2E7D32;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #1976D2;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #f5f5f5;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .training-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .training-info p {
+            margin: 5px 0;
+            color: #1976D2;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌿 Weed Detection Admin Panel</h1>
+            <p>Manage datasets and train AI models for Philippine weed identification</p>
+        </div>
+
+        <div class="alert alert-success" id="successAlert"></div>
+        <div class="alert alert-error" id="errorAlert"></div>
+
+        <div class="grid">
+            <!-- Dataset Statistics -->
+            <div class="card">
+                <h2>📊 Dataset Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <h3 id="totalImages">0</h3>
+                        <p>Total Images</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3 id="totalClasses">0</h3>
+                        <p>Weed Types</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3 id="avgImages">0</h3>
+                        <p>Avg per Class</p>
+                    </div>
+                </div>
+
+                <h3 style="margin: 20px 0 10px 0; color: #666;">Weed Types</h3>
+                <div class="weed-list" id="weedList">
+                    <p style="text-align: center; color: #999;">No data yet. Upload images to get started.</p>
+                </div>
+
+                <button class="btn btn-secondary" onclick="refreshStats()" style="margin-top: 20px;">
+                    🔄 Refresh Statistics
+                </button>
+            </div>
+
+            <!-- Upload Images -->
+            <div class="card">
+                <h2>📤 Upload Images</h2>
+                <div class="upload-section">
+                    <div class="form-group">
+                        <label for="weedType">Weed Type Name</label>
+                        <input type="text" id="weedType" placeholder="e.g., crabgrass, teki, makahiya" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Images (Multiple)</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="imageFiles" multiple accept="image/*" onchange="updateFileLabel()" />
+                            <label for="imageFiles" class="file-input-label">
+                                <span id="fileLabel">📁 Click to select images or drag & drop</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="uploadImages()">
+                        ⬆️ Upload Images
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Section -->
+        <div class="card">
+            <h2>🤖 Model Training</h2>
+            <div class="grid">
+                <div class="form-group">
+                    <label for="epochs">Training Epochs</label>
+                    <input type="number" id="epochs" value="50" min="10" max="200" />
+                    <small style="color: #666;">More epochs = better accuracy but longer training time</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="batchSize">Batch Size</label>
+                    <input type="number" id="batchSize" value="16" min="8" max="64" step="8" />
+                    <small style="color: #666;">Lower batch size = more stable but slower training</small>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="startTraining()" id="trainBtn">
+                🚀 Start Training
+            </button>
+
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill">0%</div>
+                </div>
+                <div class="training-info">
+                    <p><strong>Status:</strong> <span id="trainingStatus">Initializing...</span></p>
+                    <p><strong>Epoch:</strong> <span id="currentEpoch">0</span> / <span id="totalEpochs">0</span></p>
+                    <p><strong>Accuracy:</strong> <span id="accuracy">0</span>%</p>
+                    <p><strong>Loss:</strong> <span id="loss">0</span></p>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="downloadModel()" style="margin-top: 20px;">
+                💾 Download Trained Model
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Load statistics on page load
+        window.onload = function() {
+            refreshStats();
+            checkTrainingStatus();
+        };
+
+        function refreshStats() {
+            fetch('/api/dataset/stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalImages').textContent = data.total_images;
+                    document.getElementById('totalClasses').textContent = data.total_classes;
+                    document.getElementById('avgImages').textContent = 
+                        data.total_classes > 0 ? Math.round(data.total_images / data.total_classes) : 0;
+
+                    const weedList = document.getElementById('weedList');
+                    if (Object.keys(data.weed_types).length === 0) {
+                        weedList.innerHTML = '<p style="text-align: center; color: #999;">No data yet. Upload images to get started.</p>';
+                    } else {
+                        weedList.innerHTML = '';
+                        for (const [weed, count] of Object.entries(data.weed_types)) {
+                            const item = document.createElement('div');
+                            item.className = 'weed-item';
+                            item.innerHTML = `
+                                <span class="weed-name">${weed}</span>
+                                <div>
+                                    <span class="weed-count">${count} images</span>
+                                    <button class="btn-delete" onclick="deleteWeedType('${weed}')">Delete</button>
+                                </div>
+                            `;
+                            weedList.appendChild(item);
+                        }
+                    }
+                });
+        }
+
+        function updateFileLabel() {
+            const files = document.getElementById('imageFiles').files;
+            const label = document.getElementById('fileLabel');
+            if (files.length > 0) {
+                label.textContent = `📁 ${files.length} file(s) selected`;
+            }
+        }
+
+        function uploadImages() {
+            const weedType = document.getElementById('weedType').value.trim();
+            const files = document.getElementById('imageFiles').files;
+
+            if (!weedType) {
+                showAlert('Please enter a weed type name', 'error');
+                return;
+            }
+
+            if (files.length === 0) {
+                showAlert('Please select at least one image', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('weed_type', weedType);
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files[]', files[i]);
+            }
+
+            fetch('/api/dataset/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(`Successfully uploaded ${data.uploaded} images for ${data.weed_type}`, 'success');
+                    document.getElementById('weedType').value = '';
+                    document.getElementById('imageFiles').value = '';
+                    document.getElementById('fileLabel').textContent = '📁 Click to select images or drag & drop';
+                    refreshStats();
+                } else {
+                    showAlert(data.error || 'Upload failed', 'error');
+                }
+            })
+            .catch(error => {
+                showAlert('Upload failed: ' + error, 'error');
+            });
+        }
+
+        function deleteWeedType(weedType) {
+            if (!confirm(`Are you sure you want to delete all images for ${weedType}?`)) {
+                return;
+            }
+
+            fetch(`/api/dataset/delete/${weedType}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    refreshStats();
+                } else {
+                    showAlert(data.error || 'Delete failed', 'error');
+                }
+            });
+        }
+
+        function startTraining() {
+            const epochs = document.getElementById('epochs').value;
+            const batchSize = document.getElementById('batchSize').value;
+
+            document.getElementById('trainBtn').disabled = true;
+            document.getElementById('progressContainer').style.display = 'block';
+
+            fetch('/api/train/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({epochs: parseInt(epochs), batch_size: parseInt(batchSize)})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Training started! This may take a while...', 'success');
+                    monitorTraining();
+                } else {
+                    showAlert(data.error || 'Failed to start training', 'error');
+                    document.getElementById('trainBtn').disabled = false;
+                }
+            });
+        }
+
+        function monitorTraining() {
+            const interval = setInterval(() => {
+                fetch('/api/train/status')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('progressFill').style.width = data.progress + '%';
+                        document.getElementById('progressFill').textContent = data.progress + '%';
+                        document.getElementById('trainingStatus').textContent = data.message;
+                        document.getElementById('currentEpoch').textContent = data.current_epoch;
+                        document.getElementById('totalEpochs').textContent = data.total_epochs;
+                        document.getElementById('accuracy').textContent = data.accuracy.toFixed(2);
+                        document.getElementById('loss').textContent = data.loss.toFixed(4);
+
+                        if (!data.is_training) {
+                            clearInterval(interval);
+                            document.getElementById('trainBtn').disabled = false;
+                            if (data.progress === 100) {
+                                showAlert('Training completed successfully!', 'success');
+                            }
+                        }
+                    });
+            }, 2000);
+        }
+
+        function checkTrainingStatus() {
+            fetch('/api/train/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.is_training) {
+                        document.getElementById('progressContainer').style.display = 'block';
+                        document.getElementById('trainBtn').disabled = true;
+                        monitorTraining();
+                    }
+                });
+        }
+
+        function downloadModel() {
+            window.location.href = '/api/model/download';
+        }
+
+        function showAlert(message, type) {
+            const alertId = type === 'success' ? 'successAlert' : 'errorAlert';
+            const alert = document.getElementById(alertId);
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

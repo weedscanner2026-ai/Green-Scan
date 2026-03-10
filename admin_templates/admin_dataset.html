@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataset Management - Green Scan Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_style.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Side Navigation -->
+        <nav class="sidenav">
+            <div class="logo">
+                <h2>🌿 Green Scan</h2>
+                <p>Admin Panel</p>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('admin_dashboard') }}">👥 User Management</a></li>
+                <li><a href="{{ url_for('admin_reports') }}">📊 Reports & Analytics</a></li>
+                <li><a href="{{ url_for('admin_dataset') }}" class="active">📁 Dataset Management</a></li>
+                <li><a href="{{ url_for('admin_training') }}">🤖 Model Training</a></li>
+            </ul>
+            <div class="nav-footer">
+                <a href="{{ url_for('admin_logout') }}" class="logout-btn">Logout</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>Dataset Management</h1>
+                <p>Add new weed classes and manage dataset</p>
+            </div>
+
+            <!-- Current Dataset Overview -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Current Dataset</h2>
+                </div>
+                <div class="dataset-overview">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalClasses">{{ dataset_stats.total }}</div>
+                            <div class="stat-label">Total Classes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalImages">0</div>
+                            <div class="stat-label">Total Images</div>
+                        </div>
+                    </div>
+                    
+                    <div class="dataset-list">
+                        <h3>Weed Classes</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Weed Name</th>
+                                    <th>Images</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="datasetTableBody">
+                                {% for weed, count in dataset_stats.stats.items() %}
+                                <tr>
+                                    <td><strong>{{ weed }}</strong></td>
+                                    <td>{{ count }} images</td>
+                                    <td>
+                                        {% if count >= 200 %}
+                                        <span class="badge badge-success">Good</span>
+                                        {% elif count >= 100 %}
+                                        <span class="badge badge-warning">Fair</span>
+                                        {% else %}
+                                        <span class="badge badge-danger">Low</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn-small" onclick="openFolder('{{ weed }}')">📁 Open Folder</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add New Weed Class -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Add New Weed Class</h2>
+                </div>
+                <div class="add-weed-form">
+                    <form id="addWeedForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="weedName">Weed Name *</label>
+                                <input type="text" id="weedName" name="weedName" required 
+                                       placeholder="e.g., cogon_grass" 
+                                       pattern="[a-z_]+" 
+                                       title="Use lowercase letters and underscores only">
+                                <small>Use lowercase with underscores (e.g., cogon_grass)</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="scientificName">Scientific Name *</label>
+                                <input type="text" id="scientificName" name="scientificName" required 
+                                       placeholder="e.g., Imperata cylindrica">
+                            </div>
+                            <div class="form-group">
+                                <label for="family">Family</label>
+                                <input type="text" id="family" name="family" 
+                                       placeholder="e.g., Poaceae">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label for="description">Description *</label>
+                                <textarea id="description" name="description" rows="3" required
+                                          placeholder="Brief description of the weed..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label for="identification">Identification Features</label>
+                                <textarea id="identification" name="identification" rows="2"
+                                          placeholder="Key features for identification..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="habitat">Habitat</label>
+                                <input type="text" id="habitat" name="habitat" 
+                                       placeholder="e.g., Fields, roadsides">
+                            </div>
+                            <div class="form-group">
+                                <label for="growthSeason">Growth Season</label>
+                                <input type="text" id="growthSeason" name="growthSeason" 
+                                       placeholder="e.g., Year-round">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label for="controlMethods">Control Methods *</label>
+                                <textarea id="controlMethods" name="controlMethods" rows="3" required
+                                          placeholder="Methods to control this weed..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="toxicity">Toxicity</label>
+                                <select id="toxicity" name="toxicity">
+                                    <option value="Non-toxic">Non-toxic</option>
+                                    <option value="Mildly toxic">Mildly toxic</option>
+                                    <option value="Toxic">Toxic</option>
+                                    <option value="Highly toxic">Highly toxic</option>
+                                    <option value="Unknown">Unknown</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Create Weed Class</button>
+                            <button type="reset" class="btn-secondary">Clear Form</button>
+                        </div>
+                    </form>
+
+                    <div id="formMessage" class="form-message"></div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Next Steps</h2>
+                </div>
+                <div class="instructions">
+                    <ol>
+                        <li><strong>Create weed class</strong> using the form above</li>
+                        <li><strong>Add images</strong> to the created folder (minimum 200, recommended 500+)</li>
+                        <li><strong>Train model</strong> in the Model Training section</li>
+                        <li><strong>Publish update</strong> to push to all app users</li>
+                    </ol>
+                    <div class="info-box">
+                        <strong>📁 Dataset Location:</strong> <code>dataset/weeds/[weed_name]/</code><br>
+                        <strong>📸 Image Requirements:</strong> JPG, JPEG, or PNG format<br>
+                        <strong>📊 Minimum Images:</strong> 200 per class (500+ recommended)
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Calculate total images
+        function updateTotalImages() {
+            const rows = document.querySelectorAll('#datasetTableBody tr');
+            let total = 0;
+            rows.forEach(row => {
+                const text = row.cells[1].textContent;
+                const count = parseInt(text.match(/\d+/)[0]);
+                total += count;
+            });
+            document.getElementById('totalImages').textContent = total;
+        }
+        updateTotalImages();
+
+        // Handle form submission
+        document.getElementById('addWeedForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                weed_name: document.getElementById('weedName').value,
+                scientific_name: document.getElementById('scientificName').value,
+                family: document.getElementById('family').value,
+                description: document.getElementById('description').value,
+                identification: document.getElementById('identification').value,
+                habitat: document.getElementById('habitat').value,
+                growth_season: document.getElementById('growthSeason').value,
+                control_methods: document.getElementById('controlMethods').value,
+                toxicity: document.getElementById('toxicity').value
+            };
+
+            const messageDiv = document.getElementById('formMessage');
+            messageDiv.textContent = 'Creating weed class...';
+            messageDiv.className = 'form-message info';
+
+            fetch('/admin/dataset/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageDiv.textContent = '✓ ' + data.message + '\n\nFolder created at: ' + data.folder_path + '\n\nNow add images to this folder and train the model.';
+                    messageDiv.className = 'form-message success';
+                    
+                    // Reset form
+                    document.getElementById('addWeedForm').reset();
+                    
+                    // Reload page after 3 seconds
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                } else {
+                    messageDiv.textContent = '✗ Error: ' + data.message;
+                    messageDiv.className = 'form-message error';
+                }
+            })
+            .catch(error => {
+                messageDiv.textContent = '✗ Error: ' + error;
+                messageDiv.className = 'form-message error';
+            });
+        });
+
+        // Open folder in file explorer
+        function openFolder(weedName) {
+            fetch('/admin/dataset/open-folder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ weed_name: weedName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Folder opened in File Explorer');
+                } else {
+                    alert('Could not open folder: ' + data.message);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

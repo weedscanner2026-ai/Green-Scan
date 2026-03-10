@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Training - Green Scan Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_style.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Side Navigation -->
+        <nav class="sidenav">
+            <div class="logo">
+                <h2>🌿 Green Scan</h2>
+                <p>Admin Panel</p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="{% if active_page == 'users' %}active{% endif %}">
+                    <a href="/admin/dashboard">
+                        <span class="icon">👥</span>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li class="{% if active_page == 'reports' %}active{% endif %}">
+                    <a href="/admin/reports">
+                        <span class="icon">📊</span>
+                        <span>Reports & Analytics</span>
+                    </a>
+                </li>
+                <li class="{% if active_page == 'dataset' %}active{% endif %}">
+                    <a href="/admin/dataset">
+                        <span class="icon">📁</span>
+                        <span>Dataset Management</span>
+                    </a>
+                </li>
+                <li class="{% if active_page == 'training' %}active{% endif %}">
+                    <a href="/admin/training">
+                        <span class="icon">🤖</span>
+                        <span>Model Training</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="nav-footer">
+                <div class="admin-info">
+                    <span class="icon">👤</span>
+                    <span>{{ session.admin_username }}</span>
+                </div>
+                <a href="/admin/logout" class="logout-btn">Logout</a>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>🤖 Model Training</h1>
+                <p>Train AI model with your dataset</p>
+            </div>
+            
+            <!-- Dataset Overview Cards -->
+            <div class="stats-grid" style="margin-bottom: 30px;">
+                <div class="stat-card gradient-blue">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <div class="stat-value">{{ total_images }}</div>
+                        <div class="stat-label">Total Images</div>
+                    </div>
+                </div>
+                <div class="stat-card gradient-green">
+                    <div class="stat-icon">🌿</div>
+                    <div class="stat-info">
+                        <div class="stat-value">{{ dataset_stats|length }}</div>
+                        <div class="stat-label">Weed Classes</div>
+                    </div>
+                </div>
+                <div class="stat-card gradient-purple">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="modelAccuracy">{{ "%.1f"|format(training_status.accuracy * 100) }}%</div>
+                        <div class="stat-label">Model Accuracy</div>
+                    </div>
+                </div>
+                <div class="stat-card gradient-orange">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="trainingProgress">{{ training_status.progress }}%</div>
+                        <div class="stat-label">Progress</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dataset Details -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>📁 Dataset Composition</h2>
+                    <span class="badge badge-info">{{ dataset_stats|length }} classes</span>
+                </div>
+                <div class="dataset-grid">
+                    {% for class_name, count in dataset_stats.items() %}
+                    <div class="dataset-item">
+                        <div class="dataset-item-header">
+                            <span class="dataset-name">{{ class_name.replace('_', ' ').title() }}</span>
+                            {% if count >= 200 %}
+                            <span class="badge badge-success">Excellent</span>
+                            {% elif count >= 100 %}
+                            <span class="badge badge-warning">Good</span>
+                            {% else %}
+                            <span class="badge badge-danger">Low</span>
+                            {% endif %}
+                        </div>
+                        <div class="dataset-item-count">{{ count }} images</div>
+                        <div class="dataset-progress-bar">
+                            <div class="dataset-progress-fill" style="width: {{ [count / 1500 * 100, 100]|min }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Training Configuration -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>⚙️ Training Configuration</h2>
+                </div>
+                <div class="training-config-modern">
+                    <div class="config-row">
+                        <div class="config-item">
+                            <label for="epochs">
+                                <span class="config-icon">🔄</span>
+                                <span class="config-label">Number of Epochs</span>
+                            </label>
+                            <input type="number" id="epochs" value="100" min="1" max="500" class="modern-input">
+                            <small>Recommended: 50-150 epochs</small>
+                        </div>
+                        <div class="config-item">
+                            <label for="batch_size">
+                                <span class="config-icon">📦</span>
+                                <span class="config-label">Batch Size</span>
+                            </label>
+                            <input type="number" id="batch_size" value="16" min="8" max="64" class="modern-input">
+                            <small>Recommended: 16-32</small>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="startTrainingBtn" class="btn-primary-large" onclick="startTraining()">
+                            <span class="btn-icon">▶️</span>
+                            <span>Start Training</span>
+                        </button>
+                        <button class="btn-success-large" onclick="publishModel()">
+                            <span class="btn-icon">📤</span>
+                            <span>Publish Model Update</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Training Progress -->
+            <div class="content-card" id="trainingCard">
+                <div class="card-header">
+                    <h2>📈 Training Progress</h2>
+                    <span class="status-badge" id="statusBadge">
+                        {{ 'Training' if training_status.is_training else 'Ready' }}
+                    </span>
+                </div>
+                <div class="training-progress-modern">
+                    <div class="status-message-modern" id="statusMessage">
+                        <span class="status-icon">ℹ️</span>
+                        <span>{{ training_status.message }}</span>
+                    </div>
+                    
+                    <div class="progress-section">
+                        <div class="progress-header">
+                            <span class="progress-label">Overall Progress</span>
+                            <span class="progress-percentage" id="progressPercentage">{{ training_status.progress }}%</span>
+                        </div>
+                        <div class="progress-bar-modern">
+                            <div class="progress-fill-modern" id="progressBar" style="width: {{ training_status.progress }}%">
+                                <div class="progress-shine"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">🔢</div>
+                            <div class="metric-content">
+                                <div class="metric-label">Current Epoch</div>
+                                <div class="metric-value">
+                                    <span id="currentEpoch">{{ training_status.current_epoch }}</span>
+                                    <span class="metric-separator">/</span>
+                                    <span id="totalEpochs">{{ training_status.total_epochs }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">✅</div>
+                            <div class="metric-content">
+                                <div class="metric-label">Accuracy</div>
+                                <div class="metric-value" id="accuracy">{{ "%.2f"|format(training_status.accuracy * 100) }}%</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">📉</div>
+                            <div class="metric-content">
+                                <div class="metric-label">Loss</div>
+                                <div class="metric-value" id="loss">{{ "%.4f"|format(training_status.loss) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="training-log-modern">
+                        <div class="log-header">
+                            <h3>📝 Training Log</h3>
+                            <button class="btn-small-outline" onclick="clearLog()">Clear</button>
+                        </div>
+                        <div class="log-container-modern" id="logContainer">
+                            {% for log_line in training_status.log %}
+                            <div class="log-line-modern">
+                                <span class="log-time">{{ loop.index }}</span>
+                                <span class="log-text">{{ log_line }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        let isTraining = {{ 'true' if training_status.is_training else 'false' }};
+        let updateInterval;
+        
+        function startTraining() {
+            const epochs = document.getElementById('epochs').value;
+            const batchSize = document.getElementById('batch_size').value;
+            const btn = document.getElementById('startTrainingBtn');
+            
+            btn.disabled = true;
+            btn.textContent = 'Starting...';
+            
+            fetch('/admin/train/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    epochs: parseInt(epochs),
+                    batch_size: parseInt(batchSize)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    isTraining = true;
+                    startStatusUpdates();
+                } else {
+                    alert(data.message);
+                    btn.disabled = false;
+                    btn.textContent = 'Start Training';
+                }
+            })
+            .catch(error => {
+                alert('Error starting training: ' + error);
+                btn.disabled = false;
+                btn.textContent = 'Start Training';
+            });
+        }
+        
+        function updateTrainingStatus() {
+            fetch('/admin/train/status')
+            .then(response => response.json())
+            .then(data => {
+                // Update status message
+                document.getElementById('statusMessage').innerHTML = 
+                    '<span class="status-icon">' + (data.is_training ? '⚙️' : 'ℹ️') + '</span><span>' + data.message + '</span>';
+                
+                // Update progress bar
+                document.getElementById('progressBar').style.width = data.progress + '%';
+                document.getElementById('progressPercentage').textContent = data.progress + '%';
+                document.getElementById('trainingProgress').textContent = data.progress + '%';
+                
+                // Update status badge
+                const statusBadge = document.getElementById('statusBadge');
+                statusBadge.textContent = data.is_training ? 'Training' : 'Ready';
+                statusBadge.className = 'status-badge ' + (data.is_training ? 'status-training' : 'status-ready');
+                
+                // Update metrics
+                document.getElementById('currentEpoch').textContent = data.current_epoch;
+                document.getElementById('totalEpochs').textContent = data.total_epochs;
+                document.getElementById('accuracy').textContent = (data.accuracy * 100).toFixed(2) + '%';
+                document.getElementById('modelAccuracy').textContent = (data.accuracy * 100).toFixed(1) + '%';
+                document.getElementById('loss').textContent = data.loss.toFixed(4);
+                
+                // Update log
+                const logContainer = document.getElementById('logContainer');
+                logContainer.innerHTML = '';
+                data.log.slice(-20).forEach((line, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'log-line-modern';
+                    div.innerHTML = '<span class="log-time">' + (index + 1) + '</span><span class="log-text">' + line + '</span>';
+                    logContainer.appendChild(div);
+                });
+                logContainer.scrollTop = logContainer.scrollHeight;
+                
+                if (!data.is_training && isTraining) {
+                    isTraining = false;
+                    stopStatusUpdates();
+                    document.getElementById('startTrainingBtn').disabled = false;
+                    document.getElementById('startTrainingBtn').innerHTML = '<span class="btn-icon">▶️</span><span>Start Training</span>';
+                }
+            });
+        }
+        
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = '<div class="log-line-modern"><span class="log-time">-</span><span class="log-text">Log cleared</span></div>';
+        }
+        
+        function startStatusUpdates() {
+            updateInterval = setInterval(updateTrainingStatus, 2000);
+        }
+        
+        function stopStatusUpdates() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+        }
+        
+        // Start updates if training is in progress
+        if (isTraining) {
+            startStatusUpdates();
+            document.getElementById('startTrainingBtn').disabled = true;
+            document.getElementById('startTrainingBtn').innerHTML = '<span class="btn-icon">⏳</span><span>Training...</span>';
+        }
+        
+        function publishModel() {
+            if (!confirm('Publish this model as an update?\n\nThis will:\n1. Notify app users to download update\n2. Copy files to Android assets folder\n3. You can then rebuild APK with latest model')) {
+                return;
+            }
+            
+            fetch('/admin/model/publish', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let message = '✓ Model Published Successfully!\n\n';
+                    message += 'Version: ' + data.version + '\n\n';
+                    
+                    if (data.android_updated) {
+                        message += '✓ Files copied to Android assets\n\n';
+                        message += 'Next Steps:\n';
+                        message += '1. Open Android Studio\n';
+                        message += '2. Build > Rebuild Project\n';
+                        message += '3. Install new APK\n\n';
+                        message += 'Existing users will be notified to download the update.';
+                    } else if (data.warning) {
+                        message += '⚠ Warning: ' + data.warning + '\n\n';
+                        message += 'You may need to manually copy files to Android assets.';
+                    } else {
+                        message += 'Note: ' + (data.note || 'Android folder not found');
+                    }
+                    
+                    alert(message);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error publishing model: ' + error);
+            });
+        }
+    </script>
+</body>
+</html>

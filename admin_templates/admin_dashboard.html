@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Green Scan Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_style.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Side Navigation -->
+        <nav class="sidenav">
+            <div class="logo">
+                <h2>🌿 Green Scan</h2>
+                <p>Admin Panel</p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="{% if active_page == 'users' %}active{% endif %}">
+                    <a href="/admin/dashboard">
+                        <span class="icon">👥</span>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li class="{% if active_page == 'reports' %}active{% endif %}">
+                    <a href="/admin/reports">
+                        <span class="icon">📊</span>
+                        <span>Reports & Analytics</span>
+                    </a>
+                </li>
+                <li class="{% if active_page == 'dataset' %}active{% endif %}">
+                    <a href="/admin/dataset">
+                        <span class="icon">📁</span>
+                        <span>Dataset Management</span>
+                    </a>
+                </li>
+                <li class="{% if active_page == 'training' %}active{% endif %}">
+                    <a href="/admin/training">
+                        <span class="icon">🤖</span>
+                        <span>Model Training</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="nav-footer">
+                <div class="admin-info">
+                    <span class="icon">👤</span>
+                    <span>{{ session.admin_username }}</span>
+                </div>
+                <a href="/admin/logout" class="logout-btn">Logout</a>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>👥 User Management</h1>
+                <p>Manage registered users and their access</p>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="stats-grid" style="margin-bottom: 30px;">
+                <div class="stat-card gradient-blue">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <div class="stat-value">{{ total_users }}</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                </div>
+                <div class="stat-card gradient-green">
+                    <div class="stat-icon">🎓</div>
+                    <div class="stat-info">
+                        <div class="stat-value">{{ students }}</div>
+                        <div class="stat-label">Students</div>
+                    </div>
+                </div>
+                <div class="stat-card gradient-orange">
+                    <div class="stat-icon">🌾</div>
+                    <div class="stat-info">
+                        <div class="stat-value">{{ agriculturists }}</div>
+                        <div class="stat-label">Agriculturists</div>
+                    </div>
+                </div>
+                <div class="stat-card gradient-purple">
+                    <div class="stat-icon">👤</div>
+                    <div class="stat-info">
+                        <div class="stat-value">{{ others }}</div>
+                        <div class="stat-label">Others</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Users Table -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>📋 Registered Users</h2>
+                    <div class="header-actions">
+                        <input type="text" id="searchInput" placeholder="🔍 Search users..." class="search-input" onkeyup="searchUsers()">
+                        <select id="filterType" class="filter-select" onchange="filterUsers()">
+                            <option value="">All Types</option>
+                            <option value="Student">Students</option>
+                            <option value="Agriculturist">Agriculturists</option>
+                            <option value="Researcher">Researchers</option>
+                            <option value="Other">Others</option>
+                        </select>
+                    </div>
+                </div>
+                
+                {% if users %}
+                <div class="table-container-modern">
+                    <table class="modern-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Contact</th>
+                                <th>Type</th>
+                                <th>Institution</th>
+                                <th>Registered</th>
+                                <th>Last Login</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr class="user-row" data-type="{{ user[4] }}">
+                                <td><span class="user-id">#{{ user[0] }}</span></td>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">{{ user[3][0]|upper }}</div>
+                                        <div class="user-details">
+                                            <div class="user-name">{{ user[3] }}</div>
+                                            <div class="user-username">@{{ user[1] }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="contact-info">
+                                        <div class="contact-email">📧 {{ user[2] }}</div>
+                                        {% if user[6] %}
+                                        <div class="contact-phone">📱 {{ user[6] }}</div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if user[4] == 'Student' %}
+                                    <span class="badge-modern badge-student">🎓 {{ user[4] }}</span>
+                                    {% elif user[4] == 'Agriculturist' %}
+                                    <span class="badge-modern badge-agriculturist">🌾 {{ user[4] }}</span>
+                                    {% elif user[4] == 'Researcher' %}
+                                    <span class="badge-modern badge-researcher">🔬 {{ user[4] }}</span>
+                                    {% else %}
+                                    <span class="badge-modern badge-other">👤 {{ user[4] }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user[5] %}
+                                    <span class="institution-tag">🏛️ {{ user[5] }}</span>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td><span class="date-text">{{ user[7][:10] }}</span></td>
+                                <td>
+                                    {% if user[8] %}
+                                    <span class="date-text">{{ user[8][:10] }}</span>
+                                    {% else %}
+                                    <span class="text-muted">Never</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user[9] == 1 %}
+                                    <span class="status-badge status-active">
+                                        <span class="status-dot"></span>
+                                        Active
+                                    </span>
+                                    {% else %}
+                                    <span class="status-badge status-inactive">
+                                        <span class="status-dot"></span>
+                                        Inactive
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="action-btn {% if user[9] == 1 %}btn-deactivate{% else %}btn-activate{% endif %}" 
+                                            onclick="toggleUser({{ user[0] }}, '{{ user[3] }}', {{ user[9] }})">
+                                        {% if user[9] == 1 %}
+                                        <span class="btn-icon">🚫</span>
+                                        <span>Deactivate</span>
+                                        {% else %}
+                                        <span class="btn-icon">✅</span>
+                                        <span>Activate</span>
+                                        {% endif %}
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">👥</div>
+                    <h3>No Users Yet</h3>
+                    <p>No users have registered for the app yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        function toggleUser(userId, userName, currentStatus) {
+            const action = currentStatus == 1 ? 'deactivate' : 'activate';
+            const message = `Are you sure you want to ${action} ${userName}?`;
+            
+            if (confirm(message)) {
+                fetch(`/admin/user/${userId}/toggle`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(`User ${action}d successfully!`, 'success');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showNotification('Failed to update user status', 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('Error: ' + error, 'error');
+                });
+            }
+        }
+        
+        function searchUsers() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('usersTable');
+            const rows = table.getElementsByClassName('user-row');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const text = row.textContent.toLowerCase();
+                
+                if (text.includes(filter)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        }
+        
+        function filterUsers() {
+            const select = document.getElementById('filterType');
+            const filter = select.value;
+            const rows = document.getElementsByClassName('user-row');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const type = row.getAttribute('data-type');
+                
+                if (filter === '' || type === filter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        }
+        
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

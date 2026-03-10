@@ -1,0 +1,342 @@
+================================================================================
+GREEN SCAN - WEED DETECTION SYSTEM
+PROJECT REQUIREMENTS DOCUMENT
+================================================================================
+
+PROJECT OVERVIEW:
+An AI-powered weed detection system for Philippine agriculture consisting of:
+- Android mobile application for real-time weed identification
+- Web-based admin panel for model training and user management
+- Machine learning model using TensorFlow/Keras
+- User registration and authentication system
+
+================================================================================
+SYSTEM REQUIREMENTS
+================================================================================
+
+1. HARDWARE REQUIREMENTS
+------------------------
+Development Machine:
+- Processor: Intel Core i5 or higher (or equivalent AMD)
+- RAM: 8GB minimum, 16GB recommended
+- Storage: 10GB free space minimum
+- GPU: NVIDIA GPU with CUDA support (optional, for faster training)
+
+Android Device:
+- Android 7.0 (API Level 24) or higher
+- Camera with autofocus
+- 2GB RAM minimum
+- 100MB free storage
+
+2. SOFTWARE REQUIREMENTS
+------------------------
+
+A. Python Environment:
+   - Python 3.8 - 3.10 (tested on 3.10.9)
+   - pip package manager
+
+B. Android Development:
+   - Android Studio Arctic Fox or later
+   - JDK 11 or higher
+   - Android SDK (API Level 24+)
+   - Gradle 7.0+
+
+C. Operating System:
+   - Windows 10/11 (tested)
+   - macOS 10.14+ (compatible)
+   - Linux Ubuntu 18.04+ (compatible)
+
+================================================================================
+PYTHON DEPENDENCIES
+================================================================================
+
+Core Machine Learning:
+- tensorflow==2.10.0 or later
+- keras==2.10.0 or later
+- numpy>=1.21.0
+- pillow>=9.0.0
+- scikit-learn>=1.0.0
+- matplotlib>=3.5.0
+
+Web Framework & Server:
+- flask>=2.2.0
+- flask-cors>=3.0.10
+- werkzeug>=2.2.0
+
+Data Processing:
+- pandas>=1.4.0
+- opencv-python>=4.6.0
+
+Image Processing:
+- requests>=2.28.0
+- beautifulsoup4>=4.11.0
+
+Database:
+- sqlite3 (built-in with Python)
+
+================================================================================
+ANDROID DEPENDENCIES
+================================================================================
+
+Core Libraries:
+- androidx.appcompat:appcompat:1.6.1
+- androidx.constraintlayout:constraintlayout:2.1.4
+- com.google.android.material:material:1.9.0
+
+TensorFlow Lite:
+- org.tensorflow:tensorflow-lite:2.12.0
+- org.tensorflow:tensorflow-lite-support:0.4.3
+
+Networking:
+- com.squareup.okhttp3:okhttp:4.10.0
+
+Build Configuration:
+- Gradle: 7.4.2
+- Android Gradle Plugin: 7.4.2
+- compileSdk: 33
+- minSdk: 24
+- targetSdk: 33
+
+================================================================================
+DATASET REQUIREMENTS
+================================================================================
+
+Training Data:
+- Minimum 100 images per weed class
+- Recommended 500-1000 images per class
+- Image format: JPG, PNG
+- Resolution: 224x224 pixels (auto-resized)
+- Balanced dataset across all classes
+
+Weed Classes (Current):
+1. Carabao Grass (Paspalum conjugatum)
+2. Cogon Grass (Imperata cylindrica)
+3. Makahiya (Mimosa pudica)
+4. Morsikos (Bidens pilosa)
+5. Plagtiki/Teki (Cyperus rotundus)
+6. Not Weed (negative samples)
+
+================================================================================
+NETWORK REQUIREMENTS
+================================================================================
+
+Development:
+- Internet connection for downloading dependencies
+- Local network for testing mobile app with server
+- Same WiFi network for phone and computer
+
+Production:
+- Web server with Python support
+- Public IP or domain name (optional)
+- HTTPS certificate (recommended for production)
+
+================================================================================
+PROGRAMMING LANGUAGES & TECHNOLOGIES
+================================================================================
+
+Language Distribution:
+- HTML: 30.00% (2,212 lines) - Web interface
+- Python: 27.26% (2,010 lines) - Backend & AI
+- CSS: 17.84% (1,315 lines) - Styling
+- Java: 13.43% (990 lines) - Android app
+- XML: 7.95% (586 lines) - Android layouts
+- JSON: 2.69% (198 lines) - Data storage
+- Gradle: 0.84% (62 lines) - Build config
+
+Total: 7,373 lines of code
+
+Key Technologies:
+- TensorFlow/Keras - Deep learning framework
+- TensorFlow Lite - Mobile inference
+- Flask - Python web framework
+- Android SDK - Mobile development
+- MobileNetV2 - Transfer learning base model
+- SQLite - Database
+- Chart.js - Data visualization
+
+================================================================================
+FUNCTIONAL REQUIREMENTS
+================================================================================
+
+1. MOBILE APPLICATION
+   - User registration and login
+   - Camera capture for weed detection
+   - Gallery image upload
+   - Real-time weed identification
+   - Display weed information (scientific name, description, control methods)
+   - Confidence threshold (75% minimum)
+   - Model update capability
+   - Offline detection support
+
+2. ADMIN WEB PANEL
+   - Admin authentication
+   - User management dashboard
+   - Dataset management interface
+   - Model training interface
+   - Training progress monitoring
+   - Model publishing system
+   - Reports and analytics
+   - Add new weed classes
+
+3. MACHINE LEARNING MODEL
+   - Transfer learning with MobileNetV2
+   - Multi-class classification
+   - TFLite conversion for mobile
+   - Model versioning
+   - Accuracy: >95% on validation set
+   - Inference speed: <100ms per image
+
+4. BACKEND SERVER
+   - User registration API
+   - Authentication endpoints
+   - Model update distribution
+   - Admin panel hosting
+   - Database management
+
+================================================================================
+NON-FUNCTIONAL REQUIREMENTS
+================================================================================
+
+Performance:
+- Model inference: <100ms per image
+- App startup time: <3 seconds
+- Web page load time: <2 seconds
+- Training time: 10-30 minutes (depends on dataset size)
+
+Usability:
+- Intuitive mobile interface
+- Professional admin dashboard
+- Clear error messages
+- Responsive design
+
+Security:
+- Password hashing for user accounts
+- Session management
+- Input validation
+- SQL injection prevention
+
+Reliability:
+- Offline detection capability
+- Graceful error handling
+- Model fallback to bundled version
+
+Scalability:
+- Support for adding new weed classes
+- Expandable dataset
+- Model update system
+
+================================================================================
+INSTALLATION STEPS
+================================================================================
+
+1. Install Python 3.10.9
+2. Install required Python packages: pip install -r requirements.txt
+3. Install Android Studio
+4. Configure JDK and Android SDK
+5. Clone/download project files
+6. Prepare dataset in dataset/weeds/ folder
+7. Train model: python train_model.py
+8. Start admin server: python unified_admin_server.py
+9. Open Android project in Android Studio
+10. Build and install APK on device
+
+================================================================================
+TESTING REQUIREMENTS
+================================================================================
+
+Unit Testing:
+- Model accuracy validation
+- API endpoint testing
+- Database operations
+
+Integration Testing:
+- Mobile app with backend server
+- Model training pipeline
+- User authentication flow
+
+User Acceptance Testing:
+- Weed detection accuracy in real conditions
+- UI/UX evaluation
+- Performance testing on target devices
+
+================================================================================
+DOCUMENTATION
+================================================================================
+
+Included Documentation:
+- BUILD_INSTRUCTIONS.md - Build and setup guide
+- AI_ALGORITHM_EXPLANATION.md - ML algorithm details
+- UNIFIED_ADMIN_GUIDE.md - Admin panel usage
+- MODEL_UPDATE_SYSTEM_GUIDE.md - Model update process
+- HOW_TO_ADD_NEW_WEEDS.md - Adding new weed classes
+- GALLERY_FEATURE_GUIDE.md - Gallery upload feature
+- REGISTRATION_SETUP.md - User registration setup
+
+================================================================================
+MAINTENANCE & SUPPORT
+================================================================================
+
+Regular Maintenance:
+- Dataset expansion with new images
+- Model retraining for improved accuracy
+- Bug fixes and updates
+- Security patches
+
+Future Enhancements:
+- Support for more weed species
+- Multi-language support
+- Cloud-based model training
+- Advanced analytics
+- Export detection history
+
+================================================================================
+PROJECT TEAM ROLES
+================================================================================
+
+Required Skills:
+- Python Developer (ML/Backend)
+- Android Developer (Java)
+- Web Developer (HTML/CSS/JS)
+- Data Scientist (Model training)
+- UI/UX Designer
+- QA Tester
+
+================================================================================
+LICENSE & CREDITS
+================================================================================
+
+Project: Green Scan - Weed Detection System
+Purpose: Agricultural weed identification for Philippine farmers
+Target Users: Farmers, agriculturists, students, researchers
+
+Technologies Used:
+- TensorFlow (Apache 2.0 License)
+- Android SDK (Apache 2.0 License)
+- Flask (BSD License)
+- MobileNetV2 (Apache 2.0 License)
+
+================================================================================
+CONTACT & SUPPORT
+================================================================================
+
+For technical support or questions:
+- Check documentation files in project root
+- Review guide files for specific features
+- Consult AI_ALGORITHM_EXPLANATION.md for ML details
+
+================================================================================
+VERSION HISTORY
+================================================================================
+
+Version 1.0 (Current):
+- Initial release
+- 6 weed classes supported
+- Android app with camera and gallery
+- Web admin panel
+- User registration system
+- Model update capability
+- 97.98% model accuracy
+
+================================================================================
+END OF REQUIREMENTS DOCUMENT
+================================================================================

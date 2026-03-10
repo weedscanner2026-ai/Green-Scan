@@ -1,0 +1,95 @@
+{
+  "weeds": {
+    "Not_Weed": {
+      "scientific_name": "N/A",
+      "common_names": [
+        "Not a Weed"
+      ],
+      "family": "N/A",
+      "description": "This image does not appear to be a weed. It may be a desirable plant (grass, flower, crop), an object, or something else that is not a problematic weed species.",
+      "identification": "The AI model has determined this is not one of the known weed species in the database.",
+      "habitat": "N/A",
+      "control_methods": "No control needed - this is not a weed!",
+      "toxicity": "N/A",
+      "growth_season": "N/A"
+    },
+    "Carabao_Grass": {
+      "scientific_name": "Paspalum conjugatum",
+      "common_names": [
+        "Carabao Grass",
+        "Buffalo Grass",
+        "Hilo Grass"
+      ],
+      "family": "Poaceae",
+      "description": "Perennial grass with creeping stolons that root at nodes. Forms dense mats. Common pasture grass in the Philippines that can become weedy in lawns and gardens. Named after the carabao (water buffalo) which grazes on it.",
+      "identification": "Flat leaf blades, two finger-like seed spikes forming a V-shape, creeping stems that root at nodes, forms dense low mats",
+      "habitat": "Pastures, lawns, roadsides, moist areas, disturbed soil",
+      "control_methods": "Regular mowing, hand pulling with roots, selective herbicides, improve drainage, maintain thick desirable turf",
+      "toxicity": "Non-toxic, used as forage grass",
+      "growth_season": "Year-round in tropical climate, especially vigorous during rainy season"
+    },
+    "Cogon_Grass": {
+      "scientific_name": "Imperata cylindrica",
+      "common_names": [
+        "Cogon Grass",
+        "Blady Grass",
+        "Kunai Grass"
+      ],
+      "family": "Poaceae",
+      "description": "Cogon grass is a perennial rhizomatous grass that grows 2-6 feet tall, with light green to yellowish foliage that may turn reddish-brown after frost. Its leaves are narrow (about 2 cm wide), finely toothed, and contain sharp silica crystals, with a midvein offset to one side. The plant produces fluffy white, plume-like seed heads in spring or summer. Its underground rhizomes are hard, scaly, cream-colored, and pointed, forming extensive networks that account for up to 60% of the plant's biomass. Cogon grass grows in bunches and can form dense monocultures, crowding out native vegetation.",
+      "identification": "Unique leaf structure with off-center midrib, fluffy white seed heads, sharp leaf edges that can cut skin, aggressive growth habits, making it a significant invasive species",
+      "habitat": "Fields, roadsides, abandoned lands, disturbed areas",
+      "control_methods": "Herbicide applications using grass-specific herbicides like fluazifop-P-butyl or imazapyr for targeted control. Glyphosate can be used but is less effective. Manual removal by physically pulling or digging up for small infestations (use protective clothing). Integrated management combining mechanical, cultural, and chemical methods. Professional vegetation management services recommended for large infestations.",
+      "toxicity": "Non-toxic, but sharp leaves can cause cuts",
+      "growth_season": "Year-round, flowers during dry season"
+    },
+    "Makahiya": {
+      "scientific_name": "Mimosa pudica",
+      "common_names": [
+        "Makahiya",
+        "Sensitive Plant",
+        "Touch-me-not",
+        "Shame Plant"
+      ],
+      "family": "Fabaceae",
+      "description": "Perennial herb with compound leaves that fold when touched. Pink pom-pom flowers. Spiny stems. Can form dense thorny thickets.",
+      "identification": "Leaves fold and droop when touched, pink ball-shaped flowers, spiny stems, compound leaves with many small leaflets",
+      "habitat": "Roadsides, waste areas, pastures, disturbed soil, gardens",
+      "control_methods": "Hand pulling with gloves (spiny), mowing before flowering, herbicides (2,4-D, glyphosate), prevent seed production, mulching",
+      "toxicity": "Contains mimosine (mildly toxic to livestock in large amounts), spines can cause injury",
+      "growth_season": "Year-round in tropical climate"
+    },
+    "Morsikos": {
+      "scientific_name": "Bidens pilosa",
+      "common_names": [
+        "Morsikos",
+        "Hairy Beggarticks",
+        "Spanish Needle",
+        "Amor Seco"
+      ],
+      "family": "Asteraceae",
+      "description": "Annual herb with small white or yellow flowers. Seeds have barbed awns that stick to clothing and animal fur. Very common roadside weed in the Philippines.",
+      "identification": "Compound leaves with 3-5 leaflets, small daisy-like flowers, black seeds with 2-3 barbed awns that stick to clothes",
+      "habitat": "Roadsides, waste areas, gardens, agricultural fields, disturbed soil",
+      "control_methods": "Hand pulling before flowering, mowing regularly, mulching, herbicides, prevent seed dispersal by removing before seeds mature",
+      "toxicity": "Non-toxic, young leaves are edible and used in traditional medicine",
+      "growth_season": "Year-round, especially abundant during rainy season"
+    },
+    "Plagtiki": {
+      "scientific_name": "Cyperus rotundus",
+      "common_names": [
+        "Plagtiki",
+        "Teki",
+        "Purple Nutsedge",
+        "Nutgrass"
+      ],
+      "family": "Cyperaceae",
+      "description": "Perennial sedge with triangular stems and grass-like leaves. One of the world's worst weeds. Spreads aggressively by underground tubers. Extremely difficult to control. Also known as 'teki' in many Philippine regions.",
+      "identification": "Triangular stems (roll between fingers to feel), V-shaped leaves arranged in 3 ranks, reddish-brown flower spikes, grows faster than surrounding grass, underground tubers",
+      "habitat": "Lawns, gardens, rice fields, wet areas, poorly drained soil, agricultural lands",
+      "control_methods": "Selective herbicides (halosulfuron), repeated hand pulling with all tubers removed, improve drainage, deep cultivation, mulching, solarization. Very persistent - requires multiple treatments.",
+      "toxicity": "Non-toxic, tubers used in traditional medicine",
+      "growth_season": "Year-round in Philippines, very aggressive during rainy season"
+    }
+  }
+}

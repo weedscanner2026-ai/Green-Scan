@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Analytics - Green Scan Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Side Navigation -->
+        <nav class="sidenav">
+            <div class="logo">
+                <h2>🌿 Green Scan</h2>
+                <p>Admin Panel</p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="{% if active_page == 'users' %}active{% endif %}">
+                    <a href="/admin/dashboard">
+                        <span class="icon">👥</span>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li class="{% if active_page == 'reports' %}active{% endif %}">
+                    <a href="/admin/reports">
+                        <span class="icon">📊</span>
+                        <span>Reports & Analytics</span>
+                    </a>
+                </li>
+                <li class="{% if active_page == 'dataset' %}active{% endif %}">
+                    <a href="/admin/dataset">
+                        <span class="icon">📁</span>
+                        <span>Dataset Management</span>
+                    </a>
+                </li>
+                <li class="{% if active_page == 'training' %}active{% endif %}">
+                    <a href="/admin/training">
+                        <span class="icon">🤖</span>
+                        <span>Model Training</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="nav-footer">
+                <div class="admin-info">
+                    <span class="icon">👤</span>
+                    <span>{{ session.admin_username }}</span>
+                </div>
+                <a href="/admin/logout" class="logout-btn">Logout</a>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1>Reports & Analytics</h1>
+            </div>
+            
+            <!-- Overview Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <div class="number">{{ total_users }}</div>
+                    <p class="stat-subtitle">All registered users</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Users</h3>
+                    <div class="number">{{ active_users }}</div>
+                    <p class="stat-subtitle">{{ "%.1f"|format((active_users / total_users * 100) if total_users > 0 else 0) }}% of total</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Active This Week</h3>
+                    <div class="number">{{ active_last_week }}</div>
+                    <p class="stat-subtitle">Logged in last 7 days</p>
+                </div>
+                <div class="stat-card">
+                    <h3>With Institution</h3>
+                    <div class="number">{{ users_with_institution }}</div>
+                    <p class="stat-subtitle">{{ "%.1f"|format((users_with_institution / total_users * 100) if total_users > 0 else 0) }}% of total</p>
+                </div>
+            </div>
+            
+            <!-- Charts Row 1 -->
+            <div class="charts-row">
+                <div class="content-card chart-card">
+                    <div class="card-header">
+                        <h2>User Distribution by Type</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="userTypeChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="content-card chart-card">
+                    <div class="card-header">
+                        <h2>Account Status</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts Row 2 -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Registrations Over Time (Last 30 Days)</h2>
+                </div>
+                <div class="chart-container-wide">
+                    <canvas id="registrationsChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Charts Row 3 -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Monthly Registrations (Last 12 Months)</h2>
+                </div>
+                <div class="chart-container-wide">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Top Institutions -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Top Institutions</h2>
+                </div>
+                <div class="institutions-list">
+                    {% if top_institutions %}
+                        {% for institution, count in top_institutions %}
+                        <div class="institution-item">
+                            <div class="institution-name">{{ institution }}</div>
+                            <div class="institution-bar">
+                                <div class="bar-fill" style="width: {{ (count / top_institutions[0][1] * 100) }}%"></div>
+                                <span class="bar-label">{{ count }} users</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-data">No institution data available</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Summary Stats -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2>Summary Statistics</h2>
+                </div>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-label">Students</div>
+                        <div class="summary-value">{{ students }}</div>
+                        <div class="summary-percent">{{ "%.1f"|format((students / total_users * 100) if total_users > 0 else 0) }}%</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Agriculturists</div>
+                        <div class="summary-value">{{ agriculturists }}</div>
+                        <div class="summary-percent">{{ "%.1f"|format((agriculturists / total_users * 100) if total_users > 0 else 0) }}%</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Others</div>
+                        <div class="summary-value">{{ others }}</div>
+                        <div class="summary-percent">{{ "%.1f"|format((others / total_users * 100) if total_users > 0 else 0) }}%</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Inactive Users</div>
+                        <div class="summary-value">{{ inactive_users }}</div>
+                        <div class="summary-percent">{{ "%.1f"|format((inactive_users / total_users * 100) if total_users > 0 else 0) }}%</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // User Type Pie Chart
+        const userTypeCtx = document.getElementById('userTypeChart').getContext('2d');
+        new Chart(userTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Students', 'Agriculturists', 'Others'],
+                datasets: [{
+                    data: [{{ students }}, {{ agriculturists }}, {{ others }}],
+                    backgroundColor: [
+                        '#1976d2',
+                        '#2e7d32',
+                        '#f57c00'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Status Pie Chart
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Active', 'Inactive'],
+                datasets: [{
+                    data: [{{ active_users }}, {{ inactive_users }}],
+                    backgroundColor: [
+                        '#2e7d32',
+                        '#c62828'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Registrations Line Chart (Last 30 Days)
+        const registrationsCtx = document.getElementById('registrationsChart').getContext('2d');
+        new Chart(registrationsCtx, {
+            type: 'line',
+            data: {
+                labels: [
+                    {% for date, count in registrations_by_date %}
+                    '{{ date }}',
+                    {% endfor %}
+                ],
+                datasets: [{
+                    label: 'New Registrations',
+                    data: [
+                        {% for date, count in registrations_by_date %}
+                        {{ count }},
+                        {% endfor %}
+                    ],
+                    borderColor: '#2e7d32',
+                    backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Monthly Registrations Bar Chart
+        const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+        new Chart(monthlyCtx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    {% for month, count in registrations_by_month %}
+                    '{{ month }}',
+                    {% endfor %}
+                ],
+                datasets: [{
+                    label: 'Registrations',
+                    data: [
+                        {% for month, count in registrations_by_month %}
+                        {{ count }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: '#2e7d32',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
